@@ -12,8 +12,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import TextField from '@material-ui/core/TextField';
 import Popover from '@material-ui/core/Popover';
-import { StylesProvider, createGenerateClassName } from '@material-ui/core/styles';
-import { makeStyles } from '@material-ui/core/styles';
+import { StylesProvider, createGenerateClassName, makeStyles } from '@material-ui/core/styles';
+
 import ColorButton from './ColorButton';
 import ColorBox from './ColorBox';
 import * as ColorTool from '../helpers/colorTool';
@@ -61,6 +61,7 @@ const ColorPicker = ({
   onOpen,
   doPopup,
   disableAlpha,
+  hslGradient,
   hideTextfield,
   disablePlainColor,
 }) => {
@@ -107,6 +108,7 @@ const ColorPicker = ({
       palette={palette}
       inputFormats={inputFormats}
       disableAlpha={disableAlpha}
+      hslGradient={hslGradient}
       onChange={handleColorChange}
     />
   );
@@ -156,7 +158,7 @@ const ColorPicker = ({
         {textField}
         {box}
       </div>
-    </StylesProvider>  
+    </StylesProvider>
   );
 };
 
@@ -174,6 +176,7 @@ ColorPicker.propTypes = {
     Don't use alpha
    */
   disableAlpha: PropTypes.bool,
+  hslGradient: PropTypes.bool,
   hideTextfield: PropTypes.bool,
   disablePlainColor: PropTypes.bool,
 };
@@ -188,6 +191,7 @@ ColorPicker.defaultProps = {
   openAtStart: false,
   doPopup: undefined,
   disableAlpha: false,
+  hslGradient: false,
   hideTextfield: false,
   disablePlainColor: false,
 };

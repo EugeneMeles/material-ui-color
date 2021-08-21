@@ -52,6 +52,14 @@ const useStyles = makeStyles({
   hsvGradientV: {
     background: 'rgba(0, 0, 0, 0) linear-gradient(to top, rgb(0, 0, 0), rgba(0, 0, 0, 0)) repeat scroll 0% 0%',
   },
+  hslGradientS: {
+    background:
+      'rgba(0, 0, 0, 0) linear-gradient(to bottom, rgb(128, 128, 128), rgba(255, 255, 255, 0)) repeat scroll 0% 0%',
+  },
+  hslGradientL: {
+    background:
+      'rgba(0, 0, 0, 0) linear-gradient(to left, rgb(0, 0, 0), rgba(128, 128, 128, 0), rgb(255, 255, 255)) repeat scroll 0% 0%',
+  },
   hsvGradientCursor: {
     position: 'absolute',
     top: 0,
@@ -84,10 +92,10 @@ const useStyles = makeStyles({
   },
 });
 
-const HSVGradient = ({ className, color, onChange, ...props }) => {
+const HSVGradient = ({ className, color, onChange, isHsl, ...props }) => {
   const latestColor = React.useRef(color);
   const [focus, onFocus] = React.useState(false);
-  const [pressed, setPressed] = React.useState(false);
+  const pressed = React.useRef(false);
   React.useEffect(() => {
     latestColor.current = color;
   });
@@ -109,10 +117,10 @@ const HSVGradient = ({ className, color, onChange, ...props }) => {
 
   const initPosition = ref => {
     if (ref) {
-      const { hsv } = color;
+      const { hsv, hsl } = color;
       cursorPos = {
-        x: Math.round((hsv[1] / 100) * (ref.clientWidth - 1)),
-        y: Math.round((1 - hsv[2] / 100) * (ref.clientHeight - 1)),
+        x: Math.round(((isHsl ? 100 - hsl[2] : hsv[1]) / 100) * (ref.clientWidth - 1)),
+        y: Math.round(((isHsl ? hsl[1] : 100 - hsv[2]) / 100) * (ref.clientHeight - 1)),
       };
       setPosition(cursorPos);
     }
@@ -139,10 +147,16 @@ const HSVGradient = ({ className, color, onChange, ...props }) => {
       pos.y = ref.clientHeight - 1;
     }
     setPosition(pos, true);
-    const s = (pos.x / (ref.clientWidth - 1)) * 100;
-    const v = (1 - pos.y / (ref.clientHeight - 1)) * 100;
     const c = latestColor.current;
-    onChange([c.hsv[0], s, v]);
+    if (isHsl) {
+      const s = (pos.y / (ref.clientHeight - 1)) * 100;
+      const l = (1 - pos.x / (ref.clientWidth - 1)) * 100;
+      onChange([c.hsl[0], s, l]);
+    } else {
+      const s = (pos.x / (ref.clientWidth - 1)) * 100;
+      const v = (1 - pos.y / (ref.clientHeight - 1)) * 100;
+      onChange([c.hsv[0], s, v]);
+    }
   };
 
   React.useEffect(() => {
@@ -150,17 +164,17 @@ const HSVGradient = ({ className, color, onChange, ...props }) => {
     initPosition(ref);
     const handleDown = event => {
       onFocus(true);
-      setPressed(true);
+      pressed.current = true;
       event.preventDefault();
     };
     const handleUp = event => {
       const xy = { x: event.pageX - window.scrollX, y: event.pageY - window.scrollY };
       convertMousePosition(xy, ref);
-      setPressed(false);
+      pressed.current = false;
       event.preventDefault();
     };
     const handleMove = event => {
-      if (pressed && event.buttons) {
+      if (pressed.current && event.buttons) {
         const xy = { x: event.pageX - window.scrollX, y: event.pageY - window.scrollY };
         convertMousePosition(xy, ref);
         event.preventDefault();
@@ -224,8 +238,16 @@ const HSVGradient = ({ className, color, onChange, ...props }) => {
   return (
     <div className={className}>
       <div className={classes.root} {...props} ref={box} data-testid="hsvgradient-color">
-        <div className={`muicc-hsvgradient-s ${classes.hsvGradientS} ${classes.gradientPosition}`}>
-          <div className={`muicc-hsvgradient-v ${classes.hsvGradientV} ${classes.gradientPosition}`}>
+        <div
+          className={`muicc-hsvgradient-s ${isHsl ? classes.hslGradientS : classes.hsvGradientS} ${
+            classes.gradientPosition
+          }`}
+        >
+          <div
+            className={`muicc-hsvgradient-v ${isHsl ? classes.hslGradientL : classes.hsvGradientV} ${
+              classes.gradientPosition
+            }`}
+          >
             <div
               ref={cursor}
               tabIndex="0"
@@ -233,7 +255,7 @@ const HSVGradient = ({ className, color, onChange, ...props }) => {
               aria-valuemax={100}
               aria-valuemin={0}
               aria-valuenow={color.hsv[1]}
-              pressed={`${pressed}`}
+              pressed={`${pressed.current}`}
               data-testid="hsvgradient-cursor"
               className={`muicc-hsvgradient-cursor ${classes.hsvGradientCursor}`}
               onKeyDown={handleKey}
@@ -253,6 +275,11 @@ HSVGradient.propTypes = {
   color: CommonTypes.color.isRequired,
   className: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  isHsl: PropTypes.bool,
+};
+
+HSVGradient.defaultProps = {
+  isHsl: false,
 };
 
 export default HSVGradient;

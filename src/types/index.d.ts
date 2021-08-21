@@ -49,13 +49,14 @@ declare module 'material-ui-color' {
     hideTextfield?: boolean;
     deferred?: boolean;
     palette?: any;
-    inputFormats?: string[];
+    inputFormats?: ColorFormat[];
     disableAlpha?: boolean;
     disablePlainColor?: boolean;
-    onChange: (color: Color) => void;
-    onOpen?: () => void;
+    onChange: (color: ColorValue) => void;
+    onOpen?: (open: boolean) => void;
     openAtStart?: boolean;
     doPopup?: () => void;
+    hslGradient?: boolean;
   }
   interface ColorPickerPaletteProps<T extends PaletteRecord | null> extends ColorPickerProps {
     palette?: T;
@@ -113,8 +114,10 @@ declare module 'material-ui-color' {
     value?: ColorValue;
     deferred?: boolean;
     palette?: Record<string, string>;
-    inputFormats?: string[];
+    inputFormats?: ColorFormat[];
     onChange: (color: Color) => void;
+    disableAlpha?: boolean;
+    hslGradient?: boolean;
   }
 
   function ColorBox(props: ColorBoxProps): JSX.Element;
@@ -123,18 +126,13 @@ declare module 'material-ui-color' {
   interface i18n {
     language: string;
   }
-
-  interface TranslationProps {
-    t: typeof TFunction,
-    i18n?: i18n;
-  }
   
   interface Translation {
     t: typeof TFunction,
     i18n?: i18n;
   }
 
-  function useTranslate(translation: TranslationProps): Translation;
+  function useTranslate(translation: () => Translation): Translation;
 
   function createColor(raw: Raw, format?: ColorFormat, disableAlpha?: boolean): Color;
 
@@ -155,7 +153,6 @@ declare module 'material-ui-color' {
     ColorValue,
     Raw,
     i18n,
-    TranslationProps,
     Translation,
     useTranslate,
     createColor,

@@ -95,7 +95,16 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const ColorBox = ({ value, palette, inputFormats, deferred, onChange: _onChange, disableAlpha, ...props }) => {
+const ColorBox = ({
+  value,
+  palette,
+  inputFormats,
+  deferred,
+  onChange: _onChange,
+  disableAlpha,
+  hslGradient,
+  ...props
+}) => {
   const { t, i18n } = useTranslate();
   let color = validateColor(value, disableAlpha, t, i18n.language);
   let onChange = _onChange;
@@ -105,7 +114,7 @@ const ColorBox = ({ value, palette, inputFormats, deferred, onChange: _onChange,
     onDeferredChange = _onChange;
   }
 
-  const { hsv } = color;
+  const { hsv, hsl } = color;
   let { alpha } = color;
   alpha = alpha === undefined ? 100 : Math.floor(alpha * 100);
   const cssColor = getCssColor(color, 'hex', true);
@@ -129,7 +138,7 @@ const ColorBox = ({ value, palette, inputFormats, deferred, onChange: _onChange,
   };
 
   const handleSVChange = hsvVal => {
-    const c = colorParse(hsvVal, 'hsv');
+    const c = colorParse(hsvVal, hslGradient ? 'hsl' : 'hsv');
     onChange(c);
   };
 
@@ -146,7 +155,7 @@ const ColorBox = ({ value, palette, inputFormats, deferred, onChange: _onChange,
   };
 
   const displayInput = () =>
-    inputFormats && (
+    inputFormats.length > 0 && (
       <div className={`muicc-colorbox-inputs  ${classes.colorboxInputs}`}>
         <div className={`muicc-colorbox-colorBg ${classes.colorboxColorBg}`}>
           <div className={`muicc-colorbox-color ${classes.colorboxColor}`} />
@@ -172,12 +181,13 @@ const ColorBox = ({ value, palette, inputFormats, deferred, onChange: _onChange,
           className={`muicc-colorbox-hsvgradient ${classes.colorboxHsvGradient}`}
           color={color}
           onChange={handleSVChange}
+          isHsl={hslGradient}
         />
         <div className={`muicc-colorbox-sliders ${classes.colorboxSliders}`}>
           <HueSlider
             data-testid="hueslider"
             aria-label="color slider"
-            value={hsv[0]}
+            value={hslGradient ? hsl[0] : hsv[0]}
             min={0}
             max={360}
             onChange={handleHueChange}
@@ -230,6 +240,7 @@ ColorBox.propTypes = {
     Don't use alpha
    */
   disableAlpha: PropTypes.bool,
+  hslGradient: PropTypes.bool,
 };
 
 ColorBox.defaultProps = {
@@ -238,6 +249,7 @@ ColorBox.defaultProps = {
   palette: undefined,
   inputFormats: ['hex', 'rgb'],
   disableAlpha: false,
+  hslGradient: false,
 };
 
 export default uncontrolled(ColorBox);

@@ -103,6 +103,27 @@ test('ColorBox props', async () => {
   expect(span).toHaveStyle('left: 49%');
 });
 
+test('ColorBox HSL props', async () => {
+  const { findByTestId } = render(<ColorBox defaultValue="#830A0A7D" hslGradient />);
+  let component = await findByTestId('hsvgradient-color');
+  expect(component).toHaveStyle({ background: 'rgb(255, 0, 0) none repeat scroll 0%' });
+  component = await findByTestId('hsvgradient-cursor');
+  expect(component).toHaveStyle({
+    left: '221px',
+    top: '99px',
+  });
+  component = await findByTestId('hueslider');
+  let span = component.querySelector('.MuiSlider-track');
+  expect(span).toHaveStyle('width: 0%');
+  span = component.querySelector('.MuiSlider-thumb');
+  expect(span).toHaveStyle('left: 0%');
+  component = await findByTestId('alphaslider');
+  span = component.querySelector('.MuiSlider-track');
+  expect(span).toHaveStyle('width: 49%');
+  span = component.querySelector('.MuiSlider-thumb');
+  expect(span).toHaveStyle('left: 49%');
+});
+
 test('ColorBox palette onChange', () => {
   let value;
   const onChange = jest.fn().mockImplementation(newValue => {
@@ -194,8 +215,134 @@ test('ColorBox hsvgradient cursor changes', async () => {
       pageY: -600,
     }),
   );
+  expect(onChange).toHaveBeenCalledTimes(3);
+  expect(value.name).toBe('white');
+});
+
+test('ColorBox hslgradient cursor changes', async () => {
+  let value;
+  const onChange = jest.fn().mockImplementation(newValue => {
+    value = newValue;
+  });
+  const { findByTestId } = render(<ColorBox value="#7A0E30" onChange={onChange} hslGradient />);
+  let component = await findByTestId('hsvgradient-color');
+  const left = 22;
+  const top = 90;
+  const width = 308;
+  const height = 116;
+  expect(component.clientWidth).toEqual(width);
+  expect(component.clientHeight).toEqual(height);
+  expect(component.getBoundingClientRect()).toEqual({ left, top });
+  expect(component).toHaveStyle({ background: 'rgb(255, 0, 81) none repeat scroll 0%' });
+  component = await findByTestId('hsvgradient-cursor');
+  expect(component).toHaveStyle({
+    left: '224px',
+    top: '91px',
+  });
+  expect(value).toBe(undefined);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mousedown', {
+      bubbles: true,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(0);
+  expect(value).toBe(undefined);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mouseup', {
+      bubbles: true,
+      pageX: 0,
+      pageY: 0,
+    }),
+  );
   expect(onChange).toHaveBeenCalledTimes(1);
   expect(value.name).toBe('white');
+  fireEvent(
+    component,
+    new FakeMouseEvent('mousedown', {
+      bubbles: true,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(1);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mouseup', {
+      bubbles: true,
+      pageX: 0,
+      pageY: 600,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(2);
+  expect(value.name).toBe('white');
+  fireEvent(
+    component,
+    new FakeMouseEvent('mousedown', {
+      bubbles: true,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(2);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mouseup', {
+      bubbles: true,
+      pageX: 500,
+      pageY: 600,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(3);
+  expect(value.name).toBe('black');
+  fireEvent(
+    component,
+    new FakeMouseEvent('mousedown', {
+      bubbles: true,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(3);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mouseup', {
+      bubbles: true,
+      pageX: 500,
+      pageY: 0,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(4);
+  expect(value.name).toBe('black');
+  fireEvent(
+    component,
+    new FakeMouseEvent('mousedown', {
+      bubbles: true,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(4);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mouseup', {
+      bubbles: true,
+      pageX: left + (width - 1) / 2,
+      pageY: 600,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(5);
+  expect(value.hex).toBe('FF0051');
+  fireEvent(
+    component,
+    new FakeMouseEvent('mousedown', {
+      bubbles: true,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(5);
+  fireEvent(
+    component,
+    new FakeMouseEvent('mouseup', {
+      bubbles: true,
+      pageX: left + (width - 1) / 2,
+      pageY: 0,
+    }),
+  );
+  expect(onChange).toHaveBeenCalledTimes(6);
+  expect(value.hex).toBe('808080');
 });
 
 test('ColorBox hsvgradient touch move', async () => {

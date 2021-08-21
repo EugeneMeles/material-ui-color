@@ -47,6 +47,11 @@ DisableAlpha.story = {
   parameters: { defaultValue: '#000', disableAlpha: true },
 };
 
+export const HslGradient = () => <ColorPicker defaultValue="#000" hslGradient />;
+HslGradient.story = {
+  parameters: { defaultValue: '#000', hslGradient: true },
+};
+
 export const DisablePlain = () => <ColorPicker defaultValue="#000" disablePlainColor />;
 DisablePlain.story = {
   parameters: { defaultValue: '#000', disablePlainColor: true },
@@ -127,7 +132,7 @@ export const Localization = () => {
   useTranslate(() => ({ i18n: { language }, t: translate }));
   return (
     <div style={style}>
-      <ColorPicker defaultValue="#fe0" deferred palette={paletteObj} translate={v => translate(v)} />
+      <ColorPicker defaultValue="#fe0" deferred palette={paletteObj} />
       <Button variant="outlined" style={{ marginTop: '100px' }} onClick={handleChange}>
         {language === 'enUS' ? 'english' : 'français'}
       </Button>
